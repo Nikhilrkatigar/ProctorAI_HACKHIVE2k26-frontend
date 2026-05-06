@@ -24,7 +24,14 @@ export function useWebcam(videoRef) {
     let mounted = true
 
     navigator.mediaDevices
-      .getUserMedia({ video: { width: 640, height: 480, facingMode: 'user' }, audio: false })
+      .getUserMedia({
+        video: {
+          width: { ideal: 960 },
+          height: { ideal: 540 },
+          facingMode: 'user',
+        },
+        audio: false,
+      })
       .then((stream) => {
         if (!mounted) { stream.getTracks().forEach(t => t.stop()); return }
         streamRef.current = stream
@@ -53,8 +60,8 @@ export function useWebcam(videoRef) {
     if (!video || !ready) return null
 
     const canvas = document.createElement('canvas')
-    canvas.width  = video.videoWidth  || 640
-    canvas.height = video.videoHeight || 480
+    canvas.width  = video.videoWidth  || 960
+    canvas.height = video.videoHeight || 540
     canvas.getContext('2d').drawImage(video, 0, 0)
     return canvas.toDataURL('image/jpeg', quality)
   }, [ready, videoRef])

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 /**
  * useAudioMonitor — monitors ambient audio levels via Web Audio API.
- * Detects sudden spikes in noise (e.g., someone talking) and calls onAlert.
+ * Calibrates to the room, then detects sustained spikes in noise.
  */
 export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) {
   const [level, setLevel] = useState(0)
@@ -12,6 +12,8 @@ export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) 
   const rafRef = useRef(null)
   const streamRef = useRef(null)
   const alertCooldown = useRef(0)
+  const baselineRef = useRef(null)
+  const spikeStartRef = useRef(null)
 
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
@@ -19,6 +21,8 @@ export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) 
     ctxRef.current?.close?.()
     ctxRef.current = null
     analyserRef.current = null
+    baselineRef.current = null
+    spikeStartRef.current = null
   }, [])
 
   useEffect(() => {
@@ -60,11 +64,37 @@ export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) 
           const rms = Math.sqrt(sum / dataArray.length)
           setLevel(rms)
 
-          // Check threshold and alert with cooldown (5 second cooldown)
+          const baseline = baselineRef.current
+          if (baseline === null) {
+            baselineRef.current = rms
+          } else {
+            baselineRef.current = baseline * 0.985 + rms * 0.015
+          }
+
+          const adaptiveThreshold = Math.max(threshold, (baselineRef.current || 0) * 2.8 + 0.035)
           const now = Date.now()
-          if (rms > threshold && now > alertCooldown.current) {
+          const isSpike = rms > adaptiveThreshold
+
+          if (isSpike && spikeStartRef.current === null) {
+            spikeStartRef.current = now
+          }
+          if (!isSpike) {
+            spikeStartRef.current = null
+          }
+
+          if (
+            isSpike &&
+            spikeStartRef.current &&
+            now - spikeStartRef.current > 650 &&
+            now > alertCooldown.current
+          ) {
             alertCooldown.current = now + 5000
-            onAlert?.({ level: rms, timestamp: new Date().toISOString() })
+            onAlert?.({
+              level: rms,
+              baseline: baselineRef.current,
+              threshold: adaptiveThreshold,
+              timestamp: new Date().toISOString(),
+            })
           }
 
           rafRef.current = requestAnimationFrame(tick)

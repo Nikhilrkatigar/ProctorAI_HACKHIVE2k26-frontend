@@ -85,6 +85,7 @@ export default function StudentExam() {
   const [startTime,     setStartTime]     = useState(null)
   const [tabSwitches,   setTabSwitches]   = useState(0)
   const [inFullscreen,  setInFullscreen]  = useState(false)
+  const [capturePending, setCapturePending] = useState(false)
 
   // Keyboard activity tracking refs
   const keystrokeTimestamps = useRef([])
@@ -136,6 +137,10 @@ export default function StudentExam() {
       headers: getAuthHeaders(),
       body:    JSON.stringify({ candidate_id: candidateId, candidate_name: name }),
     })
+    if (!res.ok) {
+      toast.error('Could not start exam. Please sign in again.')
+      return
+    }
     const data = await res.json()
     setExamId(data.exam_id)
 
@@ -148,10 +153,8 @@ export default function StudentExam() {
   async function captureReference() {
     const frame = captureFrame(0.8)
     if (!frame) return
+    setCapturePending(true)
     send({ type: 'REFERENCE_FACE', frame })
-    setPhase('active')
-    setStartTime(Date.now())
-    setRemainingSec(EXAM_DURATION_SEC)
   }
 
   // ── Stream frames every second ────────────────────────────────────────
@@ -202,6 +205,17 @@ export default function StudentExam() {
         toast.error(`${label.replaceAll('_', ' ')}`, {
           icon: '⚠️',
         })
+      }
+      if (msg.type === 'REFERENCE_CAPTURED') {
+        setCapturePending(false)
+        if (msg.success) {
+          setPhase('active')
+          setStartTime(Date.now())
+          setRemainingSec(EXAM_DURATION_SEC)
+          toast.success('Identity verified. Exam started.')
+        } else {
+          toast.error(msg.message || 'No clear face detected. Try again in better light.')
+        }
       }
       if (msg.type === 'TERMINATED') {
         toast.error('Your exam has been terminated by the proctor.', {
@@ -330,7 +344,7 @@ export default function StudentExam() {
 
     const enforceFullscreen = () => {
       if (!document.fullscreenElement && inFullscreen) {
-        document.documentElement.requestFullscreen?.catch(() => {})
+        document.documentElement.requestFullscreen?.().catch(() => {})
       }
     }
 
@@ -459,8 +473,8 @@ export default function StudentExam() {
             <h2 className="text-xl font-bold mb-2">Identity Verification</h2>
             <p className="text-slate-500 text-sm mb-6">Look directly at the camera. We'll capture your reference photo for the exam session.</p>
             <video ref={videoRef} autoPlay muted playsInline className="w-full max-w-xs mx-auto rounded-xl bg-slate-200 object-cover aspect-[4/3] mb-6 ring-4 ring-indigo-500" />
-            <button onClick={captureReference} className="btn-primary w-full" disabled={!camReady}>
-              Capture & Begin Exam
+            <button onClick={captureReference} className="btn-primary w-full" disabled={!camReady || capturePending}>
+              {capturePending ? 'Verifying...' : 'Capture & Begin Exam'}
             </button>
           </div>
         </div>
