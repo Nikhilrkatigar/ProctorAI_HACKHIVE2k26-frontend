@@ -264,22 +264,7 @@ CORS_ORIGINS=http://localhost:5173
 
 ---
 
-## 🛠️ Troubleshooting
 
-**`face_recognition` install fails**  
-→ Install cmake first: `brew install cmake` / `apt install cmake`  
-→ Or skip it — the system falls back to OpenCV Haar cascades automatically.
-
-**YOLOv8 first run is slow**  
-→ `yolov8n.pt` (~6 MB) auto-downloads on first frame. Subsequent runs are instant.
-
-**Webcam not working**  
-→ Browser requires HTTPS for `getUserMedia` on non-localhost. Use localhost for dev.
-
-**Redis connection refused**  
-→ Redis is optional. The system works without it in development mode.
-
----
 
 ## 👥 Team
 
