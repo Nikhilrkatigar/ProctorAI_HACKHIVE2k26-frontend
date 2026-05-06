@@ -576,7 +576,7 @@ export default function StudentExam() {
               </div>
             )}
             <button
-              onClick={() => { localStorage.clear(); window.location.href = '/login' }}
+              onClick={() => { localStorage.clear(); navigate('/login') }}
               className="text-sm text-slate-400 hover:text-slate-600 flex items-center gap-1 mx-auto"
             >
               <LogOut size={14} /> Sign out
