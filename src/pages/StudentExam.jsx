@@ -185,31 +185,66 @@ export default function StudentExam() {
   }, [])
 
   // ── Start exam ─────────────────────────────────────────────────────────────
-  async function startExam() {
+  const startExam = useCallback(async () => {
+    // Fullscreen is best-effort — don't block exam start if denied
     try {
       await document.documentElement.requestFullscreen()
     } catch {
-      toast.error('Fullscreen is required for secure exam mode.', { icon: '🔐' })
+      // Browser may deny fullscreen outside Electron; continue anyway
     }
-    const res = await fetch(`${API}/exam/start`, {
-      method: 'POST', headers: getAuthHeaders(),
-      body: JSON.stringify({ candidate_id: candidateId, candidate_name: name }),
-    })
-    if (!res.ok) { toast.error('Could not start exam. Please sign in again.'); return }
-    const data = await res.json()
+
+    let data
+    try {
+      const res = await fetch(`${API}/exam/start`, {
+        method: 'POST', headers: getAuthHeaders(),
+        body: JSON.stringify({ candidate_id: candidateId, candidate_name: name }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        toast.error(err.detail || 'Could not start exam. Please sign in again.')
+        return
+      }
+      data = await res.json()
+    } catch (err) {
+      toast.error('Cannot reach server. Is the backend running?')
+      return
+    }
+
     setExamId(data.exam_id)
     send({ type: 'CANDIDATE_INFO', name, exam_id: data.exam_id })
     notifyExamStart()
     setPhase('capturing')
-  }
+  }, [candidateId, name, send, notifyExamStart])
 
   // ── Capture reference face ─────────────────────────────────────────────────
-  async function captureReference() {
+  const captureReference = useCallback(async () => {
     const frame = captureFrame(0.8)
-    if (!frame) return
+    if (!frame) {
+      toast.error('Camera not ready. Please allow camera access and try again.')
+      return
+    }
+    if (!wsReady) {
+      toast.error('Not connected to server yet. Please wait a moment.')
+      return
+    }
     setCapturePending(true)
     send({ type: 'REFERENCE_FACE', frame })
-  }
+    // Fallback: if backend doesn't respond in 8s, proceed without face check
+    setTimeout(() => {
+      setCapturePending(prev => {
+        if (!prev) return false
+        toast('Verification timed out — proceeding anyway.', { icon: '⚠️' })
+        return false
+      })
+      setPhase(prev => {
+        if (prev === 'capturing') {
+          setRemainingSec(EXAM_DURATION_SEC)
+          return 'active'
+        }
+        return prev
+      })
+    }, 8000)
+  }, [captureFrame, wsReady, send])
 
   // ── Frame streaming ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -549,8 +584,11 @@ export default function StudentExam() {
               <video ref={videoRef} autoPlay muted playsInline className="w-48 h-36 mx-auto rounded-lg bg-slate-200 object-cover" />
               {camError && <p className="text-red-500 text-xs mt-2">{camError}</p>}
             </div>
-            <button onClick={startExam} disabled={!wsReady} className="btn-primary w-full">
-              {wsReady ? 'Start Secure Exam →' : 'Connecting…'}
+            {!wsReady && (
+              <p className="text-xs text-amber-500 text-center mb-2">⚠ Connecting to proctor server…</p>
+            )}
+            <button onClick={startExam} className="btn-primary w-full">
+              Start Secure Exam →
             </button>
           </div>
         </div>
