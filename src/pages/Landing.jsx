@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import {
   Shield, Eye, Users, AlertTriangle, FileText, Monitor,
-  Keyboard, Smartphone, Brain, ChevronRight, Zap, Lock
+  Keyboard, Smartphone, Brain, ChevronRight, Zap, Lock, Download
 } from 'lucide-react'
 
 const FEATURES = [
@@ -68,6 +68,7 @@ const TECH_STACK = [
 
 export default function Landing() {
   const navigate = useNavigate()
+  const secureBrowserDownloadUrl = import.meta.env.VITE_SECURE_BROWSER_DOWNLOAD_URL
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 text-white overflow-hidden">
@@ -133,6 +134,15 @@ export default function Landing() {
               <Lock size={20} />
               Start Proctoring
             </button>
+            {secureBrowserDownloadUrl && (
+              <a
+                href={secureBrowserDownloadUrl}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg px-8 py-4 rounded-xl transition-all hover:shadow-xl hover:shadow-emerald-500/30 hover:-translate-y-0.5 flex items-center gap-2"
+              >
+                <Download size={20} />
+                Download Secure Browser
+              </a>
+            )}
             <a
               href="#features"
               className="text-slate-400 hover:text-white font-semibold text-lg px-6 py-4 rounded-xl transition-colors border border-white/10 hover:border-white/30"

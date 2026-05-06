@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
  * useAudioMonitor — monitors ambient audio levels via Web Audio API.
  * Calibrates to the room, then detects sustained spikes in noise.
  */
-export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) {
+export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) {
   const [level, setLevel] = useState(0)
   const [error, setError] = useState(null)
   const ctxRef = useRef(null)
@@ -71,7 +71,7 @@ export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) 
             baselineRef.current = baseline * 0.985 + rms * 0.015
           }
 
-          const adaptiveThreshold = Math.max(threshold, (baselineRef.current || 0) * 2.8 + 0.035)
+          const adaptiveThreshold = Math.max(threshold, (baselineRef.current || 0) * 2.1 + 0.02)
           const now = Date.now()
           const isSpike = rms > adaptiveThreshold
 
@@ -85,10 +85,10 @@ export function useAudioMonitor({ enabled = false, threshold = 0.15, onAlert }) 
           if (
             isSpike &&
             spikeStartRef.current &&
-            now - spikeStartRef.current > 650 &&
+            now - spikeStartRef.current > 400 &&
             now > alertCooldown.current
           ) {
-            alertCooldown.current = now + 5000
+            alertCooldown.current = now + 3500
             onAlert?.({
               level: rms,
               baseline: baselineRef.current,
