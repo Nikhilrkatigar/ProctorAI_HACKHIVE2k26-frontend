@@ -1,6 +1,6 @@
 # 🔒 ProctorAI — Real-Time Exam Integrity System
 
-> **HACKHIVE-2k26 · AI/ML Track** — Award-winning AI-powered online proctoring with live risk scoring, WebRTC webcam streaming, and automated PDF reporting.
+> **HACKHIVE-2k26 · AI/ML Track** — 
 
 ---
 
