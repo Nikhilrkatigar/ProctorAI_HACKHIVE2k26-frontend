@@ -575,16 +575,6 @@ export default function StudentExam() {
                 {tabSwitches} tab switch{tabSwitches > 1 ? 'es' : ''} recorded during exam
               </div>
             )}
-            {examId && (
-              <a
-                href={`${API}/report/${examId}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary inline-block mb-3 w-full"
-              >
-                Download Exam Report (PDF)
-              </a>
-            )}
             <button
               onClick={() => { localStorage.clear(); window.location.href = '/login' }}
               className="text-sm text-slate-400 hover:text-slate-600 flex items-center gap-1 mx-auto"

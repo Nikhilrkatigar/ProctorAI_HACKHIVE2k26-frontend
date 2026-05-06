@@ -13,14 +13,49 @@ function getAuthHeaders() {
 export default function ReportModal({ examId, onClose }) {
   const [data,    setData]    = useState(null)
   const [loading, setLoading] = useState(true)
+  const [downloading, setDownloading] = useState(false)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     if (!examId) return
     fetch(`${API}/report/${examId}/json`, { headers: getAuthHeaders() })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error('Unable to load report')
+        return r.json()
+      })
       .then(d => { setData(d); setLoading(false) })
-      .catch(() => setLoading(false))
+      .catch(() => {
+        setError('Unable to load this report. Please sign in as a proctor and try again.')
+        setLoading(false)
+      })
   }, [examId])
+
+  async function downloadPdf() {
+    if (!examId || downloading) return
+    setDownloading(true)
+    setError('')
+
+    try {
+      const response = await fetch(`${API}/report/${examId}/pdf`, {
+        headers: getAuthHeaders(),
+      })
+      if (!response.ok) throw new Error('Unable to download report')
+
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `ProctorAI_Report_${examId.slice(0, 8)}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      setError('Unable to download the PDF. Please sign in as a proctor and try again.')
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -32,14 +67,14 @@ export default function ReportModal({ examId, onClose }) {
           </div>
           <div className="flex items-center gap-2">
             {examId && (
-              <a
-                href={`${API}/report/${examId}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-sm flex items-center gap-1"
+              <button
+                type="button"
+                onClick={downloadPdf}
+                disabled={downloading}
+                className="btn-primary text-sm flex items-center gap-1 disabled:opacity-60"
               >
-                <Download size={14} /> PDF
-              </a>
+                <Download size={14} /> {downloading ? 'Downloading' : 'PDF'}
+              </button>
             )}
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
               <X size={18} />
@@ -49,6 +84,8 @@ export default function ReportModal({ examId, onClose }) {
 
         <div className="p-6">
           {loading && <p className="text-center text-slate-400 py-8">Loading report…</p>}
+
+          {error && <p className="text-center text-red-500 text-sm py-4">{error}</p>}
 
           {data && (
             <div className="space-y-6">
