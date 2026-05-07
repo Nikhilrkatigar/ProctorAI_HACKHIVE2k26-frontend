@@ -12,6 +12,7 @@ import CandidateCard from '../components/CandidateCard.jsx'
 import AlertFeed from '../components/AlertFeed.jsx'
 import RiskMeter from '../components/RiskMeter.jsx'
 import ReportModal from '../components/ReportModal.jsx'
+import BehaviorRadar from '../components/BehaviorRadar.jsx'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const WS  = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
@@ -575,7 +576,12 @@ export default function ProctorDashboard() {
                       </div>
                     )}
 
-                    <RiskMeter score={selectedCan.risk_score} size={110} />
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
+                      <RiskMeter score={selectedCan.risk_score} size={110} />
+                      <div className="flex-1 w-full max-w-[200px]">
+                        <BehaviorRadar alerts={selectedAlerts} dark={dark} />
+                      </div>
+                    </div>
 
                     <div className="flex gap-2">
                       {selectedCan.is_active && (

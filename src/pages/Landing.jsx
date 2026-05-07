@@ -7,20 +7,20 @@ import {
 const FEATURES = [
   {
     icon: Eye,
-    title: 'Face Recognition & Identity',
-    desc: 'AI-powered face verification using deep learning. Continuously matches the student against their reference photo throughout the exam.',
+    title: 'Adaptive Identity Check',
+    desc: 'Runs a lightweight identity pipeline by default and keeps the heavier face verifier as a fallback, so the exam can keep running on modest hardware.',
     color: 'from-indigo-500 to-blue-600',
   },
   {
     icon: Monitor,
-    title: 'Eye & Head Tracking',
-    desc: 'MediaPipe FaceMesh with 468 landmarks tracks iris position, gaze direction, and head pose (yaw/pitch/roll) in real time.',
+    title: 'Shared FaceMesh Tracking',
+    desc: 'A single MediaPipe FaceMesh instance powers gaze and head-pose checks, avoiding duplicate landmark work on every frame.',
     color: 'from-emerald-500 to-teal-600',
   },
   {
     icon: Users,
-    title: 'Multi-Person Detection',
-    desc: 'YOLOv8 deep learning model detects multiple persons in frame — instantly flags unauthorized people near the student.',
+    title: 'Selective Person Detection',
+    desc: 'Compact YOLOv8n detects extra people and mobile phones, with OpenCV fallback so the system still works when the model is unavailable.',
     color: 'from-amber-500 to-orange-600',
   },
   {
@@ -46,6 +46,12 @@ const FEATURES = [
     title: 'Live Risk Scoring',
     desc: 'Rolling 0-100 risk score with smart decay. Alerts are severity-weighted (LOW +5, MEDIUM +15, HIGH +30) with 2s debounce.',
     color: 'from-fuchsia-500 to-pink-600',
+  },
+  {
+    icon: Zap,
+    title: 'Edge-First Pipeline',
+    desc: 'Every frame is downscaled once and reused across detectors, which keeps CPU use and bandwidth far lower than a naive multi-model stack.',
+    color: 'from-sky-500 to-cyan-600',
   },
   {
     icon: FileText,
@@ -121,9 +127,9 @@ export default function Landing() {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Monitor candidates with <strong className="text-white">AI computer vision</strong>,
+            Monitor candidates with <strong className="text-white">resource-aware AI computer vision</strong>,
             detect cheating in <strong className="text-white">real time</strong>,
-            and generate <strong className="text-white">automated reports</strong> — all from the browser.
+            and generate <strong className="text-white">automated reports</strong> — all from the browser with a low-power inference path.
           </p>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -175,7 +181,7 @@ export default function Landing() {
             Everything the Problem Statement Demands
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto">
-            Every feature required by HACKHIVE-2k26 AI/ML Track, built with state-of-the-art computer vision and real-time processing.
+            Built to score integrity signals with one shared inference pass, graceful fallbacks, and a secure-browser layer that keeps the exam session locked down.
           </p>
         </div>
 

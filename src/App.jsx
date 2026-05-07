@@ -1,6 +1,7 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import PWAStatus from './components/PWAStatus.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
 import StudentExam from './pages/StudentExam.jsx'
@@ -17,6 +18,7 @@ function ProtectedRoute({ children, role }) {
 export default function App() {
   return (
     <ErrorBoundary>
+      <PWAStatus />
       <Router>
         <Toaster
           position="top-right"

@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { Shield, Camera, Clock, AlertTriangle, Timer, Lock } from 'lucide-react'
+import { Shield, Camera, Clock, AlertTriangle, Timer, Lock, WifiOff } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import { useWebcam } from '../hooks/useWebcam.js'
 import { useWebSocket } from '../hooks/useWebSocket.js'
@@ -218,7 +219,7 @@ export default function StudentExam() {
 
   // ── Capture reference face ─────────────────────────────────────────────────
   const captureReference = useCallback(async () => {
-    const frame = captureFrame(0.8)
+    const frame = captureFrame(0.7)
     if (!frame) {
       toast.error('Camera not ready. Please allow camera access and try again.')
       return
@@ -250,7 +251,7 @@ export default function StudentExam() {
   useEffect(() => {
     if (phase !== 'active' || lockWall) return
     const id = setInterval(() => {
-      const frame = captureFrame(0.5)
+      const frame = captureFrame(0.42)
       if (frame) send({ type: 'FRAME', frame })
     }, 1000)
     return () => clearInterval(id)
@@ -611,9 +612,36 @@ export default function StudentExam() {
 
       {/* ── Active exam ── */}
       {phase === 'active' && (
-        <div className="flex-1 flex flex-col relative">
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+
+          <AnimatePresence>
+            {!wsReady && !lockWall && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+              >
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center">
+                  <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mb-4">
+                    <WifiOff className="text-amber-500" size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">Connection Lost</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    Trying to reconnect to the live feed. Please wait...
+                  </p>
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Live camera pip */}
-          <div className="absolute bottom-6 right-6 z-20 w-56 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-xl overflow-hidden">
+          <div className={`absolute bottom-6 right-6 z-20 w-56 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-xl overflow-hidden transition-all duration-300 ${lockWall ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="px-3 py-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Live Camera</span>
               <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-500">Streaming</span>
@@ -634,7 +662,7 @@ export default function StudentExam() {
           </div>
 
           {/* Question area */}
-          <div className="flex-1 p-6 max-w-4xl mx-auto w-full">
+          <div className={`flex-1 p-6 max-w-4xl mx-auto w-full transition-all duration-300 ${lockWall ? 'blur-md grayscale pointer-events-none select-none' : ''}`}>
             <div className="card p-6 mb-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs text-slate-400 font-medium">Question {currentQ + 1} of {questions.length}</span>

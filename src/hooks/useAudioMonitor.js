@@ -14,6 +14,12 @@ export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) 
   const alertCooldown = useRef(0)
   const baselineRef = useRef(null)
   const spikeStartRef = useRef(null)
+  const onAlertRef = useRef(onAlert)
+  const thresholdRef = useRef(threshold)
+
+  // Keep refs current without re-triggering the audio setup effect
+  useEffect(() => { onAlertRef.current = onAlert }, [onAlert])
+  useEffect(() => { thresholdRef.current = threshold }, [threshold])
 
   const stop = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current)
@@ -55,7 +61,6 @@ export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) 
           if (!mounted) return
           analyser.getByteFrequencyData(dataArray)
 
-          // Calculate RMS (root mean square) for volume
           let sum = 0
           for (let i = 0; i < dataArray.length; i++) {
             const v = dataArray[i] / 255
@@ -71,7 +76,7 @@ export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) 
             baselineRef.current = baseline * 0.985 + rms * 0.015
           }
 
-          const adaptiveThreshold = Math.max(threshold, (baselineRef.current || 0) * 2.1 + 0.02)
+          const adaptiveThreshold = Math.max(thresholdRef.current, (baselineRef.current || 0) * 2.1 + 0.02)
           const now = Date.now()
           const isSpike = rms > adaptiveThreshold
 
@@ -89,7 +94,7 @@ export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) 
             now > alertCooldown.current
           ) {
             alertCooldown.current = now + 3500
-            onAlert?.({
+            onAlertRef.current?.({
               level: rms,
               baseline: baselineRef.current,
               threshold: adaptiveThreshold,
@@ -111,7 +116,7 @@ export function useAudioMonitor({ enabled = false, threshold = 0.08, onAlert }) 
       mounted = false
       stop()
     }
-  }, [enabled, threshold, onAlert, stop])
+  }, [enabled, stop])
 
   return { level, error }
 }

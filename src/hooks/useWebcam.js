@@ -26,8 +26,8 @@ export function useWebcam(videoRef) {
     navigator.mediaDevices
       .getUserMedia({
         video: {
-          width: { ideal: 960 },
-          height: { ideal: 540 },
+          width: { ideal: 640 },
+          height: { ideal: 360 },
           facingMode: 'user',
         },
         audio: false,
@@ -60,8 +60,8 @@ export function useWebcam(videoRef) {
     if (!video || !ready) return null
 
     const canvas = document.createElement('canvas')
-    canvas.width  = video.videoWidth  || 960
-    canvas.height = video.videoHeight || 540
+    canvas.width  = video.videoWidth  || 640
+    canvas.height = video.videoHeight || 360
     canvas.getContext('2d').drawImage(video, 0, 0)
     return canvas.toDataURL('image/jpeg', quality)
   }, [ready, videoRef])

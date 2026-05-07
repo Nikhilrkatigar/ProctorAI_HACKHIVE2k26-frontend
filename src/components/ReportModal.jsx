@@ -15,6 +15,7 @@ export default function ReportModal({ examId, onClose }) {
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
   const [error, setError] = useState('')
+  const role = localStorage.getItem('role') || null
 
   useEffect(() => {
     if (!examId) return
@@ -66,7 +67,7 @@ export default function ReportModal({ examId, onClose }) {
             <h2 className="text-lg font-bold text-slate-800 dark:text-white">Exam Report</h2>
           </div>
           <div className="flex items-center gap-2">
-            {examId && (
+            {examId && role === 'proctor' && (
               <button
                 type="button"
                 onClick={downloadPdf}
