@@ -531,13 +531,13 @@ export default function StudentExam() {
       )}
 
       {/* ── Top bar ── */}
-      <header className="bg-indigo-700 text-white px-6 py-3 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-3">
-          <Shield size={22} />
-          <span className="font-bold text-lg">ProctorAI Exam</span>
-          <span className="text-indigo-300 text-sm hidden sm:block">HACKHIVE-2k26</span>
+      <header className="bg-indigo-700 text-white px-4 sm:px-6 py-3 flex items-center justify-between shadow-lg gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Shield size={20} className="flex-shrink-0" />
+          <span className="font-bold text-base sm:text-lg truncate">ProctorAI Exam</span>
+          <span className="text-indigo-300 text-sm hidden sm:block flex-shrink-0">HACKHIVE-2k26</span>
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-2 sm:gap-4 text-sm flex-shrink-0">
           {phase === 'active' && (
             <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-mono font-bold ${
               timerUrgent ? 'bg-red-500 animate-pulse text-white' :
@@ -546,8 +546,8 @@ export default function StudentExam() {
               <Timer size={14} /> {formatTime(remainingSec)}
             </span>
           )}
-          <span className="flex items-center gap-1"><Clock size={14} />{formatTime(elapsedSec)}</span>
-          <span className="text-indigo-200">👤 {name}</span>
+          <span className="hidden sm:flex items-center gap-1"><Clock size={14} />{formatTime(elapsedSec)}</span>
+          <span className="text-indigo-200 hidden sm:block truncate max-w-[80px]">👤 {name}</span>
           {phase === 'active' && (
             <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-semibold ${
               violation ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'
@@ -641,7 +641,7 @@ export default function StudentExam() {
           </AnimatePresence>
 
           {/* Live camera pip */}
-          <div className={`absolute bottom-6 right-6 z-20 w-56 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-xl overflow-hidden transition-all duration-300 ${lockWall ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`absolute bottom-3 right-2 sm:bottom-6 sm:right-6 z-20 w-32 sm:w-56 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-xl overflow-hidden transition-all duration-300 ${lockWall ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="px-3 py-2 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Live Camera</span>
               <span className="text-[10px] font-bold uppercase tracking-wide text-emerald-500">Streaming</span>
@@ -662,7 +662,7 @@ export default function StudentExam() {
           </div>
 
           {/* Question area */}
-          <div className={`flex-1 p-6 max-w-4xl mx-auto w-full transition-all duration-300 ${lockWall ? 'blur-md grayscale pointer-events-none select-none' : ''}`}>
+          <div className={`flex-1 p-3 sm:p-6 max-w-4xl mx-auto w-full transition-all duration-300 ${lockWall ? 'blur-md grayscale pointer-events-none select-none' : ''}`}>
             <div className="card p-6 mb-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs text-slate-400 font-medium">Question {currentQ + 1} of {questions.length}</span>

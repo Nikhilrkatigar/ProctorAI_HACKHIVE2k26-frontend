@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Shield, Eye, EyeOff, AlertCircle, Download, Monitor } from 'lucide-react'
+
+const SECURE_BROWSER_URL = 'https://drive.google.com/uc?export=download&id=1wNT8GauuOliukUDVvsbRTZqd2z2QmtJr'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -102,6 +104,29 @@ export default function Login() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
+        </div>
+
+        {/* Secure Browser Download */}
+        <div className="mt-4 bg-white/5 border border-white/10 rounded-2xl p-5">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-indigo-600/40 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+              <Monitor size={18} className="text-indigo-300" />
+            </div>
+            <div>
+              <p className="text-white font-semibold text-sm">ProctorAI Secure Browser</p>
+              <p className="text-slate-400 text-xs mt-0.5">
+                Required for desktop exam sessions. Provides a locked-down environment with hardware-level proctoring.
+              </p>
+            </div>
+          </div>
+          <a
+            href={SECURE_BROWSER_URL}
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-indigo-500/20"
+          >
+            <Download size={16} />
+            Download Secure Browser (.exe)
+          </a>
+          <p className="text-center text-slate-500 text-xs mt-2">Windows · v1.0.0 · HACKHIVE-2k26</p>
         </div>
       </div>
     </div>

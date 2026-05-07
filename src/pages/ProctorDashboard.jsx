@@ -477,7 +477,7 @@ export default function ProctorDashboard() {
             </div>
 
             {/* ── Main content ── */}
-            <div className="flex-1 flex gap-4 p-6 min-h-0">
+            <div className="flex-1 flex flex-col lg:flex-row gap-4 p-6 min-h-0">
 
               {/* Left: candidates + chart */}
               <div className="flex-1 flex flex-col gap-4 min-w-0">
@@ -546,7 +546,7 @@ export default function ProctorDashboard() {
               </div>
 
               {/* Right: alert feed / detail panel */}
-              <div className="w-80 flex flex-col gap-4 flex-shrink-0">
+              <div className="w-full lg:w-80 flex flex-col gap-4 lg:flex-shrink-0">
 
                 {/* Detail panel for selected candidate */}
                 {selectedCan ? (
